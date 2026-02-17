@@ -10,7 +10,7 @@ import json
 import asyncio
 import logging
 from decimal import Decimal
-from sqlalchemy import select, func, desc
+from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from openai import OpenAI
 
