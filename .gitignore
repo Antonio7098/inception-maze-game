@@ -39,7 +39,10 @@ yarn-error.log*
 
 # Frontend
 frontend/dist/
+frontend/node_modules/
 frontend/.env
+frontend/.env.local
+frontend/.env.*.local
 
 # Backend
 backend/.env
