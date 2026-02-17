@@ -24,7 +24,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
-    clerk_id = Column(String(255), unique, nullable=False, index=True)
+    clerk_id = Column(String(255), unique=True, nullable=False, index=True)
     email = Column(String(255))
     openrouter_api_key = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

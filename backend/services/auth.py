@@ -35,7 +35,6 @@ async def verify_clerk_token(token: str) -> Dict[str, Any]:
     async with httpx.AsyncClient() as client:
         response = await client.get(jwks_url)
         response.raise_for_status()
-        jwks = response.json()
 
     from jwt import PyJWKClient
 
