@@ -21,12 +21,14 @@ from services.challenges import get_challenges, get_challenge_by_id
 load_dotenv = __import__("dotenv").load_dotenv
 load_dotenv()
 
+VERSION = "0.1.0"
+
 logging.basicConfig(
     format="%(asctime)s | %(levelname)-8s | %(message)s", level=logging.INFO
 )
 logger = logging.getLogger("maze_app")
 
-app = FastAPI(title="Maze Game API", version="2.0.0")
+app = FastAPI(title="Maze Game API", version=VERSION)
 security = HTTPBearer()
 
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
@@ -48,6 +50,12 @@ async def startup():
 @app.on_event("shutdown")
 async def shutdown():
     await close_db()
+
+
+@app.get("/api/version")
+async def get_version():
+    """Get API version"""
+    return {"version": VERSION}
 
 
 # Pydantic Models

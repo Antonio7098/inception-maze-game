@@ -1,0 +1,124 @@
+{
+  "project": "inception-maze-game",
+  "description": "Changelog for Inception Maze Game - AI-powered maze building and solving platform",
+  "format_version": "1.0.0",
+  "entries": [
+    {
+      "version": "v0.1.0",
+      "date": "2026-02-17",
+      "phase": 1,
+      "changes": [
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Implement FastAPI backend with SQLAlchemy async ORM, PostgreSQL database models (User, Maze, Attempt, Event, ApiCall) with full traceability"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Add Clerk JWT authentication with user creation/management and secure API key storage per user"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Create OpenRouter service with model fetching, tool-capable filtering, and free model detection"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Implement SSE-based maze solving with event streaming, tool execution, and real-time agent position updates"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Add comprehensive monitoring API with API call tracking, cost aggregation, and period-based filtering (day/week/month)"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Create predefined challenges service with model-specific time-constrained maze challenges"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Build React frontend with React Router for 4-page navigation (Challenges, Builder, MyMazes, Settings)"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Integrate Clerk authentication with protected routes and user session management"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Implement interactive maze canvas with dot-based wall drawing, smooth interpolation, and hover preview"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Create Challenges page with challenge cards showing model, time limit, grid size, and difficulty"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Build Maze Builder page with model selection, real-time agent visualization, and solve logs"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Implement My Mazes page with saved maze list, attempt history table, and success/failure indicators"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Create Settings page with API key management, usage monitoring dashboard, and account/logout controls"
+        },
+        {
+          "type": "added",
+          "area": "infrastructure",
+          "description": "Set up Docker Compose with PostgreSQL 16 for local development"
+        },
+        {
+          "type": "added",
+          "area": "infrastructure",
+          "description": "Configure GitHub Actions CI workflow with Python lint (ruff), pytest, and frontend build/test"
+        },
+        {
+          "type": "added",
+          "area": "tests",
+          "description": "Add backend unit and integration tests for maze logic, wall coordinates, tool execution, and challenges"
+        },
+        {
+          "type": "added",
+          "area": "tests",
+          "description": "Create frontend Vitest tests for Maze class operations and CONFIG validation"
+        },
+        {
+          "type": "added",
+          "area": "docs",
+          "description": "Add CODEOWNERS file with Antonio7098 as codeowner for all files"
+        },
+        {
+          "type": "fixed",
+          "area": "backend",
+          "description": "Fix has_wall_between function to correctly calculate wall keys using max() instead of min() for proper collision detection"
+        },
+        {
+          "type": "fixed",
+          "area": "frontend",
+          "description": "Fix agent/start/end rendering to use cell center coordinates (x+0.5, y+0.5) instead of dot positions"
+        },
+        {
+          "type": "fixed",
+          "area": "frontend",
+          "description": "Fix canvas sizing to use (gridSize+1)*cellSize for proper dot fitting and add padding for visual alignment"
+        },
+        {
+          "type": "fixed",
+          "area": "frontend",
+          "description": "Fix wall drawing interpolation to properly handle fast mouse movements with step-based path interpolation"
+        }
+      ]
+    }
+  ]
+}
