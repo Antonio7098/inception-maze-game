@@ -41,6 +41,10 @@ yarn-error.log*
 frontend/dist/
 frontend/.env
 
+# Backend
+backend/.env
+backend/.venv/
+
 # OS
 .DS_Store
 Thumbs.db
