@@ -60,6 +60,13 @@ export default function MyMazes() {
     return `${seconds}s`
   }
 
+  const getMedalEmoji = (medal) => {
+    if (medal === 'gold') return '🥇'
+    if (medal === 'silver') return '🥈'
+    if (medal === 'bronze') return '🥉'
+    return ''
+  }
+
   if (loading) {
     return <div className="page-loading">Loading mazes...</div>
   }
@@ -117,6 +124,7 @@ export default function MyMazes() {
                       <th>Success</th>
                       <th>Steps</th>
                       <th>Duration</th>
+                      <th>Medal</th>
                       <th>Date</th>
                     </tr>
                   </thead>
@@ -127,6 +135,7 @@ export default function MyMazes() {
                         <td>{attempt.success ? '✓' : '✗'}</td>
                         <td>{attempt.steps}</td>
                         <td>{formatDuration(attempt.duration_ms)}</td>
+                        <td className="medal-cell">{getMedalEmoji(attempt.medal)}</td>
                         <td>{new Date(attempt.started_at).toLocaleDateString()}</td>
                       </tr>
                     ))}

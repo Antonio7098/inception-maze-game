@@ -4,6 +4,7 @@ import Challenges from './pages/Challenges'
 import Builder from './pages/Builder'
 import MyMazes from './pages/MyMazes'
 import Settings from './pages/Settings'
+import Leaderboard from './pages/Leaderboard'
 import './App.css'
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
         
         <div className="nav-links">
           <NavLink to="/challenges">Challenges</NavLink>
+          <NavLink to="/mazebench">MazeBench</NavLink>
           <NavLink to="/builder">Builder</NavLink>
           <SignedIn>
             <NavLink to="/my-mazes">My Mazes</NavLink>
@@ -38,6 +40,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Challenges />} />
           <Route path="/challenges" element={<Challenges />} />
+          <Route path="/mazebench" element={<Leaderboard />} />
           <Route path="/builder" element={<Builder />} />
           <Route path="/my-mazes" element={<MyMazes />} />
           <Route path="/settings" element={<Settings />} />
