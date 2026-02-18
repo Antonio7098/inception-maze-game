@@ -72,29 +72,45 @@ async def get_optional_user(
         return None
 
 
-async def get_user_api_key(user_id: str, db_session) -> Optional[str]:
-    """Get user's OpenRouter API key from database"""
-    from db import User
-    from sqlalchemy import select
+async def get_user_api_key(clerk_id: str) -> Optional[str]:
+    """Get user's OpenRouter API key from Clerk private metadata"""
+    import httpx
 
-    result = await db_session.execute(select(User).where(User.clerk_id == user_id))
-    user = result.scalar_one_or_none()
-    return user.openrouter_api_key if user else None
+    CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY", "")
+    CLERK_API_URL = "https://api.clerk.com/v1"
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{CLERK_API_URL}/users/{clerk_id}/metadata",
+            headers={"Authorization": f"Bearer {CLERK_SECRET_KEY}"},
+        )
+        if response.status_code == 200:
+            metadata = response.json()
+            return metadata.get("private_metadata", {}).get("openrouter_api_key")
+    return None
 
 
-async def set_user_api_key(user_id: str, email: str, api_key: str, db_session) -> None:
-    """Set user's OpenRouter API key in database"""
-    from db import User
-    from sqlalchemy import select
-    from sqlalchemy.dialects.postgresql import insert
+async def set_user_api_key(clerk_id: str, api_key: str) -> None:
+    """Set user's OpenRouter API key in Clerk private metadata"""
+    import httpx
 
-    result = await db_session.execute(select(User).where(User.clerk_id == user_id))
-    user = result.scalar_one_or_none()
+    CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY", "")
+    CLERK_API_URL = "https://api.clerk.com/v1"
 
-    if user:
-        user.openrouter_api_key = api_key
-    else:
-        new_user = User(clerk_id=user_id, email=email, openrouter_api_key=api_key)
-        db_session.add(new_user)
-
-    await db_session.commit()
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{CLERK_API_URL}/users/{clerk_id}/metadata",
+            headers={"Authorization": f"Bearer {CLERK_SECRET_KEY}"},
+        )
+        if response.status_code == 200:
+            metadata = response.json()
+            private_metadata = metadata.get("private_metadata", {})
+            private_metadata["openrouter_api_key"] = api_key
+            await client.patch(
+                f"{CLERK_API_URL}/users/{clerk_id}/metadata",
+                headers={
+                    "Authorization": f"Bearer {CLERK_SECRET_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={"private_metadata": private_metadata},
+            )
