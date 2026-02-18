@@ -29,6 +29,21 @@ def calculate_medal(duration_ms: int, best_time_ms: int) -> Optional[str]:
     return None
 
 
+def calculate_challenge_medal(duration_ms: int, target_time_ms: int) -> Optional[str]:
+    if not target_time_ms or not duration_ms:
+        return None
+
+    ratio = duration_ms / target_time_ms
+
+    if abs(1 - ratio) <= GOLD_THRESHOLD:
+        return "gold"
+    elif abs(1 - ratio) <= SILVER_THRESHOLD:
+        return "silver"
+    elif abs(1 - ratio) <= BRONZE_THRESHOLD:
+        return "bronze"
+    return None
+
+
 async def update_maze_stats(db: AsyncSession, maze_id: str) -> Optional[MazeStats]:
     result = await db.execute(
         select(Attempt.duration_ms)
@@ -93,21 +108,27 @@ async def update_maze_stats(db: AsyncSession, maze_id: str) -> Optional[MazeStat
     return stats
 
 
-async def assign_medal_to_attempt(db: AsyncSession, attempt: Attempt) -> Optional[str]:
+async def assign_medal_to_attempt(
+    db: AsyncSession, attempt: Attempt, challenge_target_ms: int = None
+) -> Optional[str]:
     if not attempt.success or not attempt.duration_ms:
         return None
 
-    stats_result = await db.execute(
-        select(MazeStats).where(MazeStats.maze_id == attempt.maze_id)
-    )
-    stats = stats_result.scalar_one_or_none()
+    if challenge_target_ms and attempt.challenge_id:
+        medal = calculate_challenge_medal(attempt.duration_ms, challenge_target_ms)
+    else:
+        stats_result = await db.execute(
+            select(MazeStats).where(MazeStats.maze_id == attempt.maze_id)
+        )
+        stats = stats_result.scalar_one_or_none()
 
-    if not stats or not stats.best_time_ms:
-        stats = await update_maze_stats(db, attempt.maze_id)
-        if not stats:
-            return None
+        if not stats or not stats.best_time_ms:
+            stats = await update_maze_stats(db, attempt.maze_id)
+            if not stats:
+                return None
 
-    medal = calculate_medal(attempt.duration_ms, stats.best_time_ms)
+        medal = calculate_medal(attempt.duration_ms, stats.best_time_ms)
+
     attempt.medal = medal
     await db.commit()
     return medal

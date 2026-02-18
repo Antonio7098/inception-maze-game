@@ -58,6 +58,7 @@ security = HTTPBearer()
 
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
 CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY", "")
+CLERK_PUBLISHABLE_KEY = os.getenv("CLERK_PUBLISHABLE_KEY", "")
 CLERK_API_URL = "https://api.clerk.com/v1"
 
 
@@ -139,9 +140,22 @@ class ApiKeyUpdate(BaseModel):
 # Auth Helpers
 async def verify_clerk_token(token: str) -> Dict[str, Any]:
     import jwt
+    import base64
     from jwt import PyJWKClient
 
-    jwk_client = PyJWKClient("https://api.clerk.com/v1/jwks")
+    pk = CLERK_PUBLISHABLE_KEY
+    if pk and pk.startswith("pk_test_"):
+        encoded = pk[8:]
+        try:
+            padded = encoded + "=" * (4 - len(encoded) % 4)
+            instance = base64.urlsafe_b64decode(padded).decode().split("$")[0]
+            jwks_url = f"https://{instance}/.well-known/jwks.json"
+        except:
+            jwks_url = "https://api.clerk.com/v1/jwks"
+    else:
+        jwks_url = "https://api.clerk.com/v1/jwks"
+
+    jwk_client = PyJWKClient(jwks_url)
     signing_key = jwk_client.get_signing_key_from_jwt(token)
     return jwt.decode(
         token, signing_key.key, algorithms=["RS256"], options={"verify_aud": False}
@@ -697,7 +711,14 @@ async def create_attempt(data: AttemptCreate, user: Dict = Depends(get_current_u
 
         if is_complete:
             await update_maze_stats(db, data.maze_id)
-            await assign_medal_to_attempt(db, attempt)
+            challenge_target_ms = None
+            if maze.challenge_id:
+                challenge = get_challenge_by_id(maze.challenge_id)
+                if challenge:
+                    challenge_target_ms = (
+                        challenge.get("time_limit_minutes", 0) * 60 * 1000
+                    )
+            await assign_medal_to_attempt(db, attempt, challenge_target_ms)
             await update_mazebench_entry(db, data.model)
 
         api_call = ApiCall(
