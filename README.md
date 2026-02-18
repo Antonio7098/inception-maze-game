@@ -32,6 +32,15 @@ Take on 6 pre-defined challenges with varying difficulty:
 | The Abyss | 25x25 | 5 min | Any model |
 | Free Agent Frenzy | 15x15 | 3 min | Any free model |
 
+### MazeBench Leaderboard
+Compare LLM performance across all mazes with our normalized scoring system:
+- **Geometric mean scoring** - Fair comparison across mazes of varying difficulty
+- **Medal system** - Earn medals based on time relative to best:
+  - 🥇 Gold: Within 10% of best time
+  - 🥈 Silver: Within 15% of best time
+  - 🥉 Bronze: Within 20% of best time
+- **Challenge solutions** - View past successful solutions for each challenge
+
 ### User Features
 - **Authentication** via Clerk (Google, GitHub, email)
 - **Save/load mazes** to personal library
@@ -136,6 +145,8 @@ Open http://localhost:5173 in your browser.
 |--------|----------|-------------|
 | GET | `/api/challenges` | List all challenges |
 | GET | `/api/challenges/{id}` | Get specific challenge |
+| GET | `/api/challenges/{id}/solutions` | Get successful solutions |
+| GET | `/api/challenges/stats` | Get best times per challenge |
 
 ### Mazes
 | Method | Endpoint | Description |
@@ -145,6 +156,12 @@ Open http://localhost:5173 in your browser.
 | GET | `/api/mazes/{id}` | Get specific maze |
 | DELETE | `/api/mazes/{id}` | Delete a maze |
 | GET | `/api/mazes/{id}/attempts` | Get solve attempts |
+| GET | `/api/mazes/{id}/stats` | Get maze statistics |
+
+### MazeBench
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/mazebench` | Get LLM leaderboard |
 
 ### Attempts
 | Method | Endpoint | Description |
@@ -174,7 +191,8 @@ maze-game/
 │   │   ├── auth.py             # Clerk authentication
 │   │   ├── challenges.py       # Challenge definitions
 │   │   ├── openrouter.py       # Model fetching
-│   │   └── maze_agent.py       # AI agent service
+│   │   ├── maze_agent.py       # AI agent service
+│   │   └── leaderboard.py      # MazeBench scoring & rankings
 │   └── tests/
 │       ├── test_unit.py
 │       └── test_integration.py
@@ -192,6 +210,7 @@ maze-game/
 │       │   └── agent.js        # AI solver agent
 │       └── pages/
 │           ├── Challenges.jsx
+│           ├── Leaderboard.jsx
 │           ├── Builder.jsx
 │           ├── MyMazes.jsx
 │           └── Settings.jsx

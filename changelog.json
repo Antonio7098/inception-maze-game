@@ -119,6 +119,58 @@
           "description": "Fix wall drawing interpolation to properly handle fast mouse movements with step-based path interpolation"
         }
       ]
+    },
+    {
+      "version": "v0.2.0",
+      "date": "2026-02-18",
+      "phase": 2,
+      "changes": [
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Add MazeBench leaderboard service with geometric mean scoring for normalized LLM comparison across mazes"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Implement medal system: Gold (±10%), Silver (±15%), Bronze (±20%) based on best time per maze"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Add MazeStats and MazeBenchEntry database models for tracking per-maze statistics and model rankings"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Add API endpoints: GET /api/mazebench, GET /api/challenges/{id}/solutions, GET /api/mazes/{id}/stats"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Add challenge_id and medal columns to Attempt model for tracking challenge completions and achievements"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Create MazeBench leaderboard page showing global LLM rankings with score, solve count, and medal tallies"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Add expandable solutions panel to Challenges page showing past successful attempts with medals"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Display medals in MyMazes attempts table for completed solves"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Add MazeBench navigation link to main nav bar"
+        }
+      ]
     }
   ]
 }
