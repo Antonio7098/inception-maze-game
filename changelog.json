@@ -181,6 +181,28 @@
           "description": "Add MazeBench navigation link to main nav bar"
         }
       ]
+    },
+    {
+      "version": "v0.2.1",
+      "date": "2026-02-18",
+      "phase": 2,
+      "changes": [
+        {
+          "type": "changed",
+          "area": "backend",
+          "description": "Fix challenge medal calculation to use ±X% of target time instead of best time for user-created challenge mazes"
+        },
+        {
+          "type": "added",
+          "area": "backend",
+          "description": "Add calculate_challenge_medal() function that awards medals based on absolute deviation from target time"
+        },
+        {
+          "type": "added",
+          "area": "frontend",
+          "description": "Add medal thresholds info card to Challenges page explaining ±10%/±15%/±20% target time thresholds"
+        }
+      ]
     }
   ]
 }
