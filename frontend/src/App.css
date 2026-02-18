@@ -1568,6 +1568,38 @@
   color: var(--accent-primary);
 }
 
+.api-key-security {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.clerk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.clerk-badge svg {
+  color: #635bff;
+}
+
+.security-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.security-note a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+}
+
 .period-filter {
   display: flex;
   gap: 0.5rem;
