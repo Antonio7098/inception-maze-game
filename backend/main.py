@@ -19,9 +19,28 @@ from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from openai import OpenAI
 
-from db import get_async_session, init_db, close_db, User, Maze, Attempt, Event, ApiCall
+from db import (
+    get_async_session,
+    init_db,
+    close_db,
+    User,
+    Maze,
+    Attempt,
+    Event,
+    ApiCall,
+    MazeBenchEntry,
+    MazeStats,
+)
 from services.openrouter import get_tool_capable_models
 from services.challenges import get_challenges, get_challenge_by_id
+from services.leaderboard import (
+    update_maze_stats,
+    assign_medal_to_attempt,
+    update_mazebench_entry,
+    get_mazebench_leaderboard,
+    get_challenge_solutions,
+    get_challenge_best_times,
+)
 
 load_dotenv = __import__("dotenv").load_dotenv
 load_dotenv()
@@ -273,6 +292,7 @@ async def list_attempts(maze_id: str, user: Dict = Depends(get_current_user)):
                 "success": a.success,
                 "steps": a.steps,
                 "duration_ms": a.duration_ms,
+                "medal": a.medal,
                 "started_at": a.started_at.isoformat() if a.started_at else None,
             }
             for a in attempts
@@ -496,6 +516,7 @@ async def create_attempt(data: AttemptCreate, user: Dict = Depends(get_current_u
         user_id=user["id"],
         model=data.model,
         started_at=datetime.utcnow(),
+        challenge_id=maze.challenge_id,
     )
     db.add(attempt)
     await db.commit()
@@ -633,6 +654,11 @@ async def create_attempt(data: AttemptCreate, user: Dict = Depends(get_current_u
         attempt.completed_at = end_time
         await db.commit()
 
+        if is_complete:
+            await update_maze_stats(db, data.maze_id)
+            await assign_medal_to_attempt(db, attempt)
+            await update_mazebench_entry(db, data.model)
+
         api_call = ApiCall(
             user_id=user["id"],
             attempt_id=attempt.id,
@@ -728,4 +754,46 @@ async def get_stats(user: Dict = Depends(get_current_user)):
         "month_cost": sum(
             float(c.cost_usd or 0) for c in all_calls if c.created_at >= month_ago
         ),
+    }
+
+
+@app.get("/api/mazebench")
+async def get_mazebench(limit: int = 50, db: AsyncSession = Depends(get_async_session)):
+    leaderboard = await get_mazebench_leaderboard(db, limit)
+    return {"leaderboard": leaderboard}
+
+
+@app.get("/api/challenges/{challenge_id}/solutions")
+async def get_challenge_solutions_endpoint(
+    challenge_id: str, limit: int = 50, db: AsyncSession = Depends(get_async_session)
+):
+    solutions = await get_challenge_solutions(db, challenge_id, limit)
+    return {"solutions": solutions, "challenge_id": challenge_id}
+
+
+@app.get("/api/challenges/stats")
+async def get_challenges_stats(db: AsyncSession = Depends(get_async_session)):
+    best_times = await get_challenge_best_times(db)
+    return {"stats": best_times}
+
+
+@app.get("/api/mazes/{maze_id}/stats")
+async def get_maze_stats_endpoint(maze_id: str, user: Dict = Depends(get_current_user)):
+    db = user["db"]
+    result = await db.execute(select(MazeStats).where(MazeStats.maze_id == maze_id))
+    stats = result.scalar_one_or_none()
+
+    if not stats:
+        return {"stats": None}
+
+    return {
+        "stats": {
+            "best_time_ms": stats.best_time_ms,
+            "median_time_ms": stats.median_time_ms,
+            "total_attempts": stats.total_attempts,
+            "successful_attempts": stats.successful_attempts,
+            "gold_threshold_ms": stats.gold_threshold_ms,
+            "silver_threshold_ms": stats.silver_threshold_ms,
+            "bronze_threshold_ms": stats.bronze_threshold_ms,
+        }
     }

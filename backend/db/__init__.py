@@ -1,4 +1,14 @@
-from .models import Base, User, Maze, Attempt, Event, ApiCall, Challenge
+from .models import (
+    Base,
+    User,
+    Maze,
+    Attempt,
+    Event,
+    ApiCall,
+    Challenge,
+    MazeBenchEntry,
+    MazeStats,
+)
 from .session import get_async_session, init_db, close_db, AsyncSessionLocal
 
 __all__ = [
@@ -9,6 +19,8 @@ __all__ = [
     "Event",
     "ApiCall",
     "Challenge",
+    "MazeBenchEntry",
+    "MazeStats",
     "get_async_session",
     "init_db",
     "close_db",

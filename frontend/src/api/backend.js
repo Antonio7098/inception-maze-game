@@ -129,3 +129,19 @@ export async function solveMaze(mazeId, model, onEvent, signal) {
     }
   }
 }
+
+export async function getMazeBench(limit = 50) {
+  return fetchAPI(`/api/mazebench?limit=${limit}`)
+}
+
+export async function getChallengeSolutions(challengeId, limit = 50) {
+  return fetchAPI(`/api/challenges/${challengeId}/solutions?limit=${limit}`)
+}
+
+export async function getChallengesStats() {
+  return fetchAPI('/api/challenges/stats')
+}
+
+export async function getMazeStats(mazeId) {
+  return fetchAPI(`/api/mazes/${mazeId}/stats`)
+}

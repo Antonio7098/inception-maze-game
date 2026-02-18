@@ -67,7 +67,7 @@ class Attempt(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     maze_id = Column(String(36), ForeignKey("mazes.id"), nullable=False, index=True)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
-    model = Column(String(255), nullable=False)
+    model = Column(String(255), nullable=False, index=True)
     success = Column(Boolean, default=False)
     steps = Column(Integer, default=0)
     path = Column(Text, nullable=True)
@@ -75,6 +75,8 @@ class Attempt(Base):
     completed_at = Column(DateTime, nullable=True)
     duration_ms = Column(Integer, nullable=True)
     error_message = Column(Text, nullable=True)
+    medal = Column(String(10), nullable=True)
+    challenge_id = Column(String(50), nullable=True, index=True)
 
     maze = relationship("Maze", back_populates="attempts")
     user = relationship("User", back_populates="attempts")
@@ -139,3 +141,38 @@ class Challenge(Base):
     difficulty = Column(Integer, default=1)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class MazeBenchEntry(Base):
+    __tablename__ = "mazebench_entries"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    model = Column(String(255), nullable=False, index=True)
+    total_solves = Column(Integer, default=0)
+    successful_solves = Column(Integer, default=0)
+    total_steps = Column(Integer, default=0)
+    total_duration_ms = Column(Integer, default=0)
+    score = Column(Numeric(10, 6), default=0)
+    gold_count = Column(Integer, default=0)
+    silver_count = Column(Integer, default=0)
+    bronze_count = Column(Integer, default=0)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = ({"extend_existing": True},)
+
+
+class MazeStats(Base):
+    __tablename__ = "maze_stats"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    maze_id = Column(
+        String(36), ForeignKey("mazes.id"), nullable=False, unique=True, index=True
+    )
+    best_time_ms = Column(Integer, nullable=True)
+    median_time_ms = Column(Integer, nullable=True)
+    total_attempts = Column(Integer, default=0)
+    successful_attempts = Column(Integer, default=0)
+    gold_threshold_ms = Column(Integer, nullable=True)
+    silver_threshold_ms = Column(Integer, nullable=True)
+    bronze_threshold_ms = Column(Integer, nullable=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
