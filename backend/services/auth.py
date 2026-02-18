@@ -15,15 +15,23 @@ security = HTTPBearer()
 @lru_cache()
 def get_clerk_jwks_url() -> str:
     """Get Clerk JWKS URL from publishable key"""
+    import base64
+
     if not CLERK_PUBLISHABLE_KEY:
         raise ValueError("CLERK_PUBLISHABLE_KEY not set")
 
-    if CLERK_PUBLISHABLE_KEY.startswith("pk_test_"):
-        return "https://api.clerk.com/v1/jwks"
-    elif CLERK_PUBLISHABLE_KEY.startswith("pk_live_"):
-        return "https://api.clerk.com/v1/jwks"
-    else:
-        return "https://api.clerk.com/v1/jwks"
+    if CLERK_PUBLISHABLE_KEY.startswith("pk_test_") or CLERK_PUBLISHABLE_KEY.startswith(
+        "pk_live_"
+    ):
+        encoded = CLERK_PUBLISHABLE_KEY[8:]
+        try:
+            padded = encoded + "=" * (4 - len(encoded) % 4)
+            instance = base64.urlsafe_b64decode(padded).decode().split("$")[0]
+            return f"https://{instance}/.well-known/jwks.json"
+        except:
+            pass
+
+    return "https://api.clerk.com/v1/jwks"
 
 
 async def verify_clerk_token(token: str) -> Dict[str, Any]:
