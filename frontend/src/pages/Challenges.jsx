@@ -64,8 +64,19 @@ export default function Challenges() {
     <div className="page challenges-page">
       <header className="page-header">
         <h1>Challenges</h1>
-        <p>Create mazes that AI models can solve within the time limit</p>
+        <p>Create mazes that AI models solve in the target time</p>
       </header>
+
+      <div className="challenges-info">
+        <div className="info-card">
+          <h4>Medal Thresholds</h4>
+          <p>
+            <span className="medal gold">🥇 Gold</span>: within ±10% of target time<br/>
+            <span className="medal silver">🥈 Silver</span>: within ±15% of target time<br/>
+            <span className="medal bronze">🥉 Bronze</span>: within ±20% of target time
+          </p>
+        </div>
+      </div>
 
       <div className="challenges-grid">
         {challenges.map(challenge => {

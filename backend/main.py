@@ -697,7 +697,14 @@ async def create_attempt(data: AttemptCreate, user: Dict = Depends(get_current_u
 
         if is_complete:
             await update_maze_stats(db, data.maze_id)
-            await assign_medal_to_attempt(db, attempt)
+            challenge_target_ms = None
+            if maze.challenge_id:
+                challenge = get_challenge_by_id(maze.challenge_id)
+                if challenge:
+                    challenge_target_ms = (
+                        challenge.get("time_limit_minutes", 0) * 60 * 1000
+                    )
+            await assign_medal_to_attempt(db, attempt, challenge_target_ms)
             await update_mazebench_entry(db, data.model)
 
         api_call = ApiCall(
