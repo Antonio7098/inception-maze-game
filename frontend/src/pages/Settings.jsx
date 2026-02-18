@@ -3,6 +3,13 @@ import { useAuth, SignOutButton } from '@clerk/clerk-react'
 import { updateApiKey, getApiCalls, getStats } from '../api/backend'
 import { setAuthToken } from '../api/backend'
 
+const THEMES = [
+  { id: 'limbo', name: 'Limbo', desc: 'Dark purple' },
+  { id: 'hotel', name: 'Hotel', desc: 'Art deco gold' },
+  { id: 'snow', name: 'Snow', desc: 'Light blue' },
+  { id: 'warm', name: 'Warm', desc: 'Blue light filter' },
+]
+
 export default function Settings() {
   const { getToken, user } = useAuth()
   const [apiKey, setApiKey] = useState('')
@@ -12,6 +19,12 @@ export default function Settings() {
   const [apiCalls, setApiCalls] = useState([])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'limbo')
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
   useEffect(() => {
     getToken().then(token => {
@@ -62,12 +75,35 @@ export default function Settings() {
       </header>
 
       <div className="settings-tabs">
+        <button className={activeTab === 'theme' ? 'active' : ''} onClick={() => setActiveTab('theme')}>Theme</button>
         <button className={activeTab === 'api-key' ? 'active' : ''} onClick={() => setActiveTab('api-key')}>API Key</button>
         <button className={activeTab === 'monitoring' ? 'active' : ''} onClick={() => setActiveTab('monitoring')}>Monitoring</button>
         <button className={activeTab === 'account' ? 'active' : ''} onClick={() => setActiveTab('account')}>Account</button>
       </div>
 
       <div className="settings-content">
+        {activeTab === 'theme' && (
+          <div className="settings-section">
+            <h2>Theme</h2>
+            <p>Choose a color theme for the application</p>
+            <div className="theme-grid">
+              {THEMES.map(t => (
+                <button
+                  key={t.id}
+                  className={`theme-option ${theme === t.id ? 'active' : ''}`}
+                  onClick={() => setTheme(t.id)}
+                >
+                  <div className={`theme-preview theme-${t.id}`} />
+                  <div className="theme-info">
+                    <span className="theme-name">{t.name}</span>
+                    <span className="theme-desc">{t.desc}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {activeTab === 'api-key' && (
           <div className="settings-section">
             <h2>OpenRouter API Key</h2>
