@@ -152,6 +152,16 @@
         },
         {
           "type": "added",
+          "area": "backend",
+          "description": "Add Alembic migrations for database schema management"
+        },
+        {
+          "type": "changed",
+          "area": "backend",
+          "description": "Store user OpenRouter API keys in Clerk private metadata instead of plaintext database for improved security"
+        },
+        {
+          "type": "added",
           "area": "frontend",
           "description": "Create MazeBench leaderboard page showing global LLM rankings with score, solve count, and medal tallies"
         },

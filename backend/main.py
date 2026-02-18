@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 import os
 import json
 import asyncio
+import httpx
 import logging
 from decimal import Decimal
 from sqlalchemy import select, desc
@@ -56,6 +57,35 @@ app = FastAPI(title="Maze Game API", version=VERSION)
 security = HTTPBearer()
 
 OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY", "")
+CLERK_API_URL = "https://api.clerk.com/v1"
+
+
+async def get_user_private_metadata(clerk_id: str) -> dict:
+    """Fetch user's private metadata from Clerk"""
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{CLERK_API_URL}/users/{clerk_id}/metadata",
+            headers={"Authorization": f"Bearer {CLERK_SECRET_KEY}"},
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+async def update_user_private_metadata(clerk_id: str, metadata: dict) -> dict:
+    """Update user's private metadata in Clerk"""
+    async with httpx.AsyncClient() as client:
+        response = await client.patch(
+            f"{CLERK_API_URL}/users/{clerk_id}/metadata",
+            headers={
+                "Authorization": f"Bearer {CLERK_SECRET_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={"private_metadata": metadata},
+        )
+        response.raise_for_status()
+        return response.json()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -135,11 +165,18 @@ async def get_current_user(
         await db.commit()
         await db.refresh(user)
 
+    try:
+        metadata = await get_user_private_metadata(clerk_id)
+        api_key = metadata.get("private_metadata", {}).get("openrouter_api_key")
+    except Exception as e:
+        logger.warning(f"Failed to fetch private metadata: {e}")
+        api_key = None
+
     return {
         "id": user.id,
         "clerk_id": clerk_id,
         "email": email,
-        "api_key": user.openrouter_api_key,
+        "api_key": api_key,
         "db": db,
     }
 
@@ -156,11 +193,15 @@ async def get_me(user: Dict = Depends(get_current_user)):
 
 @app.post("/api/auth/api-key")
 async def update_api_key(data: ApiKeyUpdate, user: Dict = Depends(get_current_user)):
-    db = user["db"]
-    result = await db.execute(select(User).where(User.id == user["id"]))
-    db_user = result.scalar_one()
-    db_user.openrouter_api_key = data.api_key
-    await db.commit()
+    clerk_id = user["clerk_id"]
+    try:
+        metadata = await get_user_private_metadata(clerk_id)
+        private_metadata = metadata.get("private_metadata", {})
+        private_metadata["openrouter_api_key"] = data.api_key
+        await update_user_private_metadata(clerk_id, private_metadata)
+    except Exception as e:
+        logger.error(f"Failed to update private metadata: {e}")
+        raise HTTPException(status_code=500, detail="Failed to save API key")
     return {"success": True}
 
 
