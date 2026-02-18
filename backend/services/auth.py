@@ -19,11 +19,11 @@ def get_clerk_jwks_url() -> str:
         raise ValueError("CLERK_PUBLISHABLE_KEY not set")
 
     if CLERK_PUBLISHABLE_KEY.startswith("pk_test_"):
-        return "https://api.clerk.dev/v1/jwks"
+        return "https://api.clerk.com/v1/jwks"
     elif CLERK_PUBLISHABLE_KEY.startswith("pk_live_"):
-        return "https://api.clerk.dev/v1/jwks"
+        return "https://api.clerk.com/v1/jwks"
     else:
-        return "https://api.clerk.dev/v1/jwks"
+        return "https://api.clerk.com/v1/jwks"
 
 
 async def verify_clerk_token(token: str) -> Dict[str, Any]:

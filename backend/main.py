@@ -141,7 +141,7 @@ async def verify_clerk_token(token: str) -> Dict[str, Any]:
     import jwt
     from jwt import PyJWKClient
 
-    jwk_client = PyJWKClient("https://api.clerk.dev/v1/jwks")
+    jwk_client = PyJWKClient("https://api.clerk.com/v1/jwks")
     signing_key = jwk_client.get_signing_key_from_jwt(token)
     return jwt.decode(
         token, signing_key.key, algorithms=["RS256"], options={"verify_aud": False}
