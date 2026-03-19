@@ -137,11 +137,14 @@ class ApiKeyUpdate(BaseModel):
 
 
 # Auth Helpers
+CLERK_JWKS_URL = os.getenv("CLERK_JWKS_URL", "https://api.clerk.com/v1/jwks")
+
+
 async def verify_clerk_token(token: str) -> Dict[str, Any]:
     import jwt
     from jwt import PyJWKClient
 
-    jwk_client = PyJWKClient("https://api.clerk.com/v1/jwks")
+    jwk_client = PyJWKClient(CLERK_JWKS_URL)
     signing_key = jwk_client.get_signing_key_from_jwt(token)
     return jwt.decode(
         token, signing_key.key, algorithms=["RS256"], options={"verify_aud": False}
